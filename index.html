@@ -151,7 +151,7 @@
   <div data-screen-label="Comp Card" style="background:#f2f0ec; color:#17171a; animation:fadeup .5s ease both;">
     <div style="padding:clamp(28px,4vw,56px) clamp(16px,4vw,56px) clamp(64px,8vw,112px); max-width:1270px; margin:0 auto;">
       <div style="display:flex; justify-content:center; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:#6f5ba8; padding-bottom:40px;">
-        <a href="mailto:tywadebusiness@gmail.com" style="color:#6b55b0;">Download full comp card (PDF)</a>
+        <a href="#" onClick="{{ downloadKit }}" style="color:#6b55b0;">Download full comp card (PDF)</a>
       </div>
       <h1 style="margin: 0 0 64px; text-align: center; font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; font-weight: 600; font-size: 28px; line-height: .94; letter-spacing: -.03em; text-transform: uppercase">Comp card</h1>
 
@@ -387,6 +387,114 @@ class Component extends DCLogic {
 
   kitList = ["uploads/IMG_0944.jpg","uploads/lr3.jpg","uploads/profile-photo.jpg","uploads/DSC_0804.jpg","uploads/lr15.jpg","uploads/profile-main.jpg"];
 
+  // builds a real PDF client-side from the comp-card JPEGs and downloads it —
+  // there is no pre-made comp-card PDF asset, so one is assembled on demand
+  downloadCompCard = async (e) => {
+    if (e) e.preventDefault();
+    try {
+      const images = await Promise.all(this.kitList.map(async (src) => {
+        const buf = await fetch(encodeURI(src)).then(r => r.arrayBuffer());
+        const bytes = new Uint8Array(buf);
+        return { bytes, ...this.jpegInfo(bytes) };
+      }));
+      const pdf = this.buildKitPdf(images);
+      const blob = new Blob([pdf], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Tyler-Wade-Comp-Card.pdf";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+    } catch (err) {
+      console.error("comp card PDF generation failed", err);
+      window.location.href = "mailto:tywadebusiness@gmail.com?subject=Comp%20card%20request";
+    }
+  };
+
+  jpegInfo(u8) {
+    let i = 2;
+    while (i < u8.length - 1) {
+      if (u8[i] !== 0xff) { i++; continue; }
+      const marker = u8[i + 1];
+      if (marker === 0xd8 || marker === 0x01 || (marker >= 0xd0 && marker <= 0xd7)) { i += 2; continue; }
+      if (marker === 0xd9) break;
+      const len = (u8[i + 2] << 8) | u8[i + 3];
+      if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) {
+        return {
+          height: (u8[i + 5] << 8) | u8[i + 6],
+          width: (u8[i + 7] << 8) | u8[i + 8],
+          components: u8[i + 9],
+        };
+      }
+      i += 2 + len;
+    }
+    throw new Error("could not read JPEG dimensions");
+  }
+
+  // minimal single-XObject-per-page PDF writer; JPEGs are embedded as-is via DCTDecode
+  buildKitPdf(images) {
+    const enc = new TextEncoder();
+    const chunks = [];
+    const offsets = [];
+    let offset = 0;
+    const push = (data) => {
+      const bytes = typeof data === "string" ? enc.encode(data) : data;
+      chunks.push(bytes);
+      offset += bytes.length;
+    };
+    const addObj = (num, body) => {
+      offsets[num] = offset;
+      push(num + " 0 obj\n" + body + "\nendobj\n");
+    };
+
+    const maxDim = 792;
+    const n = images.length;
+    const kids = [];
+    for (let i = 0; i < n; i++) kids.push((3 + i * 3) + " 0 R");
+
+    push("%PDF-1.4\n");
+    addObj(1, "<< /Type /Catalog /Pages 2 0 R >>");
+    addObj(2, "<< /Type /Pages /Kids [" + kids.join(" ") + "] /Count " + n + " >>");
+
+    images.forEach((img, i) => {
+      const pageNum = 3 + i * 3;
+      const contentNum = pageNum + 1;
+      const imageNum = pageNum + 2;
+      const scale = maxDim / Math.max(img.width, img.height);
+      const w = +(img.width * scale).toFixed(2);
+      const h = +(img.height * scale).toFixed(2);
+      const cs = img.components === 1 ? "/DeviceGray" : img.components === 4 ? "/DeviceCMYK" : "/DeviceRGB";
+
+      addObj(pageNum, "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + w + " " + h + "] " +
+        "/Resources << /XObject << /Im0 " + imageNum + " 0 R >> >> /Contents " + contentNum + " 0 R >>");
+
+      const content = "q " + w + " 0 0 " + h + " 0 0 cm /Im0 Do Q";
+      addObj(contentNum, "<< /Length " + content.length + " >>\nstream\n" + content + "\nendstream");
+
+      offsets[imageNum] = offset;
+      push(imageNum + " 0 obj\n<< /Type /XObject /Subtype /Image /Width " + img.width + " /Height " + img.height +
+        " /ColorSpace " + cs + " /BitsPerComponent 8 /Filter /DCTDecode /Length " + img.bytes.length + " >>\nstream\n");
+      push(img.bytes);
+      push("\nendstream\nendobj\n");
+    });
+
+    const xrefStart = offset;
+    const totalObjs = 3 + n * 3;
+    push("xref\n0 " + totalObjs + "\n0000000000 65535 f \n");
+    for (let num = 1; num < totalObjs; num++) {
+      push(String(offsets[num]).padStart(10, "0") + " 00000 n \n");
+    }
+    push("trailer\n<< /Size " + totalObjs + " /Root 1 0 R >>\nstartxref\n" + xrefStart + "\n%%EOF");
+
+    const total = chunks.reduce((s, c) => s + c.length, 0);
+    const out = new Uint8Array(total);
+    let p = 0;
+    for (const c of chunks) { out.set(c, p); p += c.length; }
+    return out;
+  }
+
   openLb(src) {
     return (e) => {
       if (e) { e.stopPropagation(); this.lbOpenedAt = e.timeStamp; }
@@ -494,6 +602,7 @@ class Component extends DCLogic {
           });
         }
       },
+      downloadKit: this.downloadCompCard,
       kitOpen1: this.openLb(this.kitList[0]),
       kitOpen2: this.openLb(this.kitList[1]),
       kitOpen3: this.openLb(this.kitList[2]),
