@@ -400,15 +400,32 @@ class Component extends DCLogic {
 
   kitList = ["uploads/IMG_0944.jpg","uploads/lr3.jpg","uploads/profile-photo.jpg","uploads/DSC_0804.jpg","uploads/lr15.jpg","uploads/profile-main.jpg"];
 
-  // builds a real PDF client-side from the comp-card JPEGs and downloads it —
-  // there is no pre-made comp-card PDF asset, so one is assembled on demand
+  // background-position (x%,y%) for each kit photo, mirroring the on-page crop
+  kitPositions = {
+    "uploads/IMG_0944.jpg": [50, 25],
+    "uploads/lr3.jpg": [50, 50],
+    "uploads/profile-photo.jpg": [50, 14],
+    "uploads/DSC_0804.jpg": [52, 22],
+    "uploads/lr15.jpg": [50, 50],
+    "uploads/profile-main.jpg": [50, 50],
+  };
+
+  kitStats = [
+    ["Height", "5'9\""], ["Chest", "39 in"], ["Waist", "29 in"],
+    ["Hips", "36.5 in"], ["Neck", "16 in"], ["Inseam", "30 in"],
+    ["Suit", "40R"], ["Hair", "Brown"], ["Eyes", "Hazel"],
+  ];
+
+  // builds a real one-page comp-card PDF client-side (photo grid + stats block,
+  // like a printed comp card) and downloads it — there is no pre-made asset,
+  // so one is assembled on demand
   downloadCompCard = async (e) => {
     if (e) e.preventDefault();
     try {
       const images = await Promise.all(this.kitList.map(async (src) => {
         const buf = await fetch(encodeURI(src)).then(r => r.arrayBuffer());
         const bytes = new Uint8Array(buf);
-        return { bytes, ...this.jpegInfo(bytes) };
+        return { bytes, src, pos: this.kitPositions[src] || [50, 50], ...this.jpegInfo(bytes) };
       }));
       const pdf = this.buildKitPdf(images);
       const blob = new Blob([pdf], { type: "application/pdf" });
@@ -446,7 +463,46 @@ class Component extends DCLogic {
     throw new Error("could not read JPEG dimensions");
   }
 
-  // minimal single-XObject-per-page PDF writer; JPEGs are embedded as-is via DCTDecode
+  // standard Helvetica glyph widths (1/1000 em), WinAnsi range 32-126 — used to center headings
+  helvW = { " ":278,"!":278,'"':355,"#":556,"$":556,"%":889,"&":667,"'":191,"(":333,")":333,"*":389,"+":584,",":278,"-":333,".":278,"/":278,"0":556,"1":556,"2":556,"3":556,"4":556,"5":556,"6":556,"7":556,"8":556,"9":556,":":278,";":278,"<":584,"=":584,">":584,"?":556,"@":1015,A:667,B:667,C:722,D:722,E:667,F:611,G:778,H:722,I:278,J:500,K:667,L:556,M:833,N:722,O:778,P:667,Q:778,R:722,S:667,T:611,U:722,V:667,W:944,X:667,Y:667,Z:611,"[":278,"\\":278,"]":278,"^":469,_:556,"`":333,a:556,b:556,c:500,d:556,e:556,f:278,g:556,h:556,i:222,j:222,k:500,l:222,m:833,n:556,o:556,p:556,q:556,r:333,s:500,t:278,u:556,v:500,w:722,x:500,y:500,z:500,"{":334,"|":260,"}":334,"~":584 };
+
+  pdfEscape(str) { return String(str).replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)"); }
+
+  textWidth(str, size, tc) {
+    tc = tc || 0;
+    let w = 0;
+    for (const ch of str) w += this.helvW[ch] || 556;
+    return (w / 1000) * size + tc * Math.max(0, str.length - 1);
+  }
+
+  centerText(str, size, y, font, tc) {
+    font = font || "F1"; tc = tc || 0;
+    const w = this.textWidth(str, size, tc);
+    const x = (612 - w) / 2;
+    return "BT /" + font + " " + size + " Tf " + (tc ? tc + " Tc " : "") +
+      x.toFixed(2) + " " + y + " Td (" + this.pdfEscape(str) + ") Tj ET";
+  }
+
+  // draws a JPEG XObject cropped to fill a tile rect, mimicking CSS background-size:cover
+  // at the given background-position, via a clip rect + oversized/offset image matrix
+  coverImage(imgIdx, tile, img) {
+    const scale = Math.max(tile.w / img.width, tile.h / img.height);
+    const sw = img.width * scale, sh = img.height * scale;
+    const [px, py] = img.pos;
+    const offX = (tile.w - sw) * (px / 100);
+    const offY = (tile.h - sh) * (1 - py / 100);
+    const x = tile.x + offX, y = tile.y + offY;
+    return [
+      "q",
+      tile.x.toFixed(2) + " " + tile.y.toFixed(2) + " " + tile.w.toFixed(2) + " " + tile.h.toFixed(2) + " re W n",
+      sw.toFixed(2) + " 0 0 " + sh.toFixed(2) + " " + x.toFixed(2) + " " + y.toFixed(2) + " cm",
+      "/Im" + imgIdx + " Do",
+      "Q",
+    ].join("\n");
+  }
+
+  // one-page comp-card PDF: header, 3x2 photo grid (cropped like the on-page tiles),
+  // and a measurements block — JPEGs embedded as-is via DCTDecode
   buildKitPdf(images) {
     const enc = new TextEncoder();
     const chunks = [];
@@ -462,39 +518,65 @@ class Component extends DCLogic {
       push(num + " 0 obj\n" + body + "\nendobj\n");
     };
 
-    const maxDim = 792;
+    const PW = 612, PH = 792, M = 40;
+    const gridTop = 676, gridBottom = 240, gridGap = 10;
+    const colW = (PW - 2 * M - 2 * gridGap) / 3;
+    const rowH = (gridTop - gridBottom - gridGap) / 2;
+    const cols = [M, M + colW + gridGap, M + 2 * (colW + gridGap)];
+    const rows = [gridTop - rowH, gridBottom];
+    const tiles = [];
+    for (let r = 0; r < 2; r++) for (let c = 0; c < 3; c++) tiles.push({ x: cols[c], y: rows[r], w: colW, h: rowH });
+
+    const content = [];
+    content.push(this.centerText("TYLER WADE", 26, 726, "F2"));
+    content.push(this.centerText("LIFE COACH  -  DIRECTOR  -  FOUNDER  -  AUTHOR  -  MODEL", 9, 706, "F1", 1.4));
+    content.push("0.72 0.72 0.72 RG 1 w " + M + " 692 m " + (PW - M) + " 692 l S");
+
+    images.slice(0, 6).forEach((img, i) => content.push(this.coverImage(i, tiles[i], img)));
+
+    content.push("BT /F2 9 Tf 1.2 Tc " + M + " 224 Td (MEASUREMENTS) Tj ET");
+    const statCols = [M, M + colW + gridGap, M + 2 * (colW + gridGap)];
+    const statRowY = [196, 168, 140];
+    this.kitStats.forEach(([label, val], i) => {
+      const c = Math.floor(i / 3), r = i % 3;
+      const x = statCols[c], y = statRowY[r];
+      content.push("0.42 0.42 0.42 rg BT /F1 9 Tf 0.6 Tc " + x + " " + y + " Td (" + this.pdfEscape(label.toUpperCase()) + ") Tj ET 0 g");
+      content.push("BT /F2 11 Tf 0 Tc " + x + " " + (y - 14) + " Td (" + this.pdfEscape(val) + ") Tj ET");
+      content.push("0.85 0.85 0.85 RG 0.75 w " + x + " " + (y - 20) + " m " + (x + colW - 10) + " " + (y - 20) + " l S");
+    });
+
+    content.push("0.72 0.72 0.72 RG 1 w " + M + " 62 m " + (PW - M) + " 62 l S");
+    content.push("0.4 0.4 0.4 rg BT /F1 9 Tf " + M + " 44 Td (tywadebusiness@gmail.com) Tj ET 0 g");
+    const copy = "(C) 2026 TYLER WADE";
+    content.push("0.4 0.4 0.4 rg " + this.centerTextRight(copy, 9, 44, PW - M) + " 0 g");
+
+    const stream = content.join("\n");
     const n = images.length;
-    const kids = [];
-    for (let i = 0; i < n; i++) kids.push((3 + i * 3) + " 0 R");
 
     push("%PDF-1.4\n");
     addObj(1, "<< /Type /Catalog /Pages 2 0 R >>");
-    addObj(2, "<< /Type /Pages /Kids [" + kids.join(" ") + "] /Count " + n + " >>");
+    addObj(2, "<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
+
+    const fontsRes = "/Font << /F1 5 0 R /F2 6 0 R >>";
+    const xobjRes = "/XObject << " + images.map((_, i) => "/Im" + i + " " + (7 + i) + " 0 R").join(" ") + " >>";
+    addObj(3, "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + PW + " " + PH + "] " +
+      "/Resources << " + fontsRes + " " + xobjRes + " >> /Contents 4 0 R >>");
+    addObj(4, "<< /Length " + stream.length + " >>\nstream\n" + stream + "\nendstream");
+    addObj(5, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>");
+    addObj(6, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>");
 
     images.forEach((img, i) => {
-      const pageNum = 3 + i * 3;
-      const contentNum = pageNum + 1;
-      const imageNum = pageNum + 2;
-      const scale = maxDim / Math.max(img.width, img.height);
-      const w = +(img.width * scale).toFixed(2);
-      const h = +(img.height * scale).toFixed(2);
+      const num = 7 + i;
       const cs = img.components === 1 ? "/DeviceGray" : img.components === 4 ? "/DeviceCMYK" : "/DeviceRGB";
-
-      addObj(pageNum, "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + w + " " + h + "] " +
-        "/Resources << /XObject << /Im0 " + imageNum + " 0 R >> >> /Contents " + contentNum + " 0 R >>");
-
-      const content = "q " + w + " 0 0 " + h + " 0 0 cm /Im0 Do Q";
-      addObj(contentNum, "<< /Length " + content.length + " >>\nstream\n" + content + "\nendstream");
-
-      offsets[imageNum] = offset;
-      push(imageNum + " 0 obj\n<< /Type /XObject /Subtype /Image /Width " + img.width + " /Height " + img.height +
+      offsets[num] = offset;
+      push(num + " 0 obj\n<< /Type /XObject /Subtype /Image /Width " + img.width + " /Height " + img.height +
         " /ColorSpace " + cs + " /BitsPerComponent 8 /Filter /DCTDecode /Length " + img.bytes.length + " >>\nstream\n");
       push(img.bytes);
       push("\nendstream\nendobj\n");
     });
 
     const xrefStart = offset;
-    const totalObjs = 3 + n * 3;
+    const totalObjs = 7 + n;
     push("xref\n0 " + totalObjs + "\n0000000000 65535 f \n");
     for (let num = 1; num < totalObjs; num++) {
       push(String(offsets[num]).padStart(10, "0") + " 00000 n \n");
@@ -506,6 +588,14 @@ class Component extends DCLogic {
     let p = 0;
     for (const c of chunks) { out.set(c, p); p += c.length; }
     return out;
+  }
+
+  centerTextRight(str, size, y, rightX, font, tc) {
+    font = font || "F1"; tc = tc || 0;
+    const w = this.textWidth(str, size, tc);
+    const x = rightX - w;
+    return "BT /" + font + " " + size + " Tf " + (tc ? tc + " Tc " : "") +
+      x.toFixed(2) + " " + y + " Td (" + this.pdfEscape(str) + ") Tj ET";
   }
 
   openLb(src) {
