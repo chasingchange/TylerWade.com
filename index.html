@@ -27,6 +27,12 @@
   @keyframes nudgeL { 0%,100% { transform: translateX(0) } 50% { transform: translateX(-5px) } }
   @keyframes nudgeR { 0%,100% { transform: translateX(0) } 50% { transform: translateX(5px) } }
   @keyframes fadeup { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: none } }
+  @keyframes lbSwirl { 0% { transform: rotate(0deg) scale(1); } 55% { transform: rotate(200deg) scale(1.18); } 100% { transform: rotate(360deg) scale(1); } }
+  @keyframes lbDraw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+  [data-lb="prev"]:hover, [data-lb="next"]:hover { animation-play-state: paused; }
+  [data-lb="prev"]:hover svg, [data-lb="next"]:hover svg { animation: lbSwirl .8s ease; }
+  [data-lb="prev"] .lb-draw, [data-lb="next"] .lb-draw { fill: none; stroke: currentColor; stroke-width: 14; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+  [data-lb="prev"]:hover .lb-draw, [data-lb="next"]:hover .lb-draw { animation: lbDraw .8s ease forwards; }
 </style>
 </helmet>
 
@@ -251,10 +257,10 @@
       <div ref="{{ lbRef }}" data-lb="scrim" style="position:fixed; inset:0; z-index:9999; background:rgba(11,11,12,.96); display: {{ lbDisplay }}; align-items:center; justify-content:center; padding:clamp(12px,3vw,48px);">
           <img data-lb="img" alt="" style="max-width:94vw; max-height:92vh; width:auto; height:auto; object-fit:contain; display:block;">
           <span data-lb="prev" style="position:absolute; left:clamp(8px,3vw,38px); top:50%; transform:translateY(-50%); width:64px; height:64px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; color:#dcd0ff; animation:nudgeL 1.8s ease-in-out infinite;" style-hover="background:rgba(220,208,255,.16);">
-            <svg width="36" height="36" viewBox="0 0 256 256" fill="currentColor"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"></path></svg>
+            <svg width="36" height="36" viewBox="0 0 256 256" fill="currentColor"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"></path><path class="lb-draw" pathLength="1" d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"></path></svg>
           </span>
           <span data-lb="next" style="position:absolute; right:clamp(8px,3vw,38px); top:50%; transform:translateY(-50%); width:64px; height:64px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; color:#dcd0ff; animation:nudgeR 1.8s ease-in-out infinite;" style-hover="background:rgba(220,208,255,.16);">
-            <svg width="36" height="36" viewBox="0 0 256 256" fill="currentColor"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg>
+            <svg width="36" height="36" viewBox="0 0 256 256" fill="currentColor"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path><path class="lb-draw" pathLength="1" d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg>
           </span>
           <span data-lb="close" style="position:absolute; top:clamp(14px,3vw,32px); right:clamp(14px,3vw,32px); cursor:pointer; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:#dcd0ff;">Close</span>
       </div>
