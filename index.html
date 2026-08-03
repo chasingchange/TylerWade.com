@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>Tyler Wade</title>
+<link rel="preload" as="image" href="uploads/hero-landscape.jpg">
+<link rel="preload" as="image" href="uploads/hero-portrait.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Tinos:ital,wght@0,400;0,700;1,400;1,700&amp;display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #0b0b0c; overflow-x: hidden; }
+  img, svg { max-width: 100%; }
+  a { color: #dcd0ff; text-decoration: none; }
+  a:hover { color: #eaeaea; }
+  @keyframes nudgeL { 0%,100% { transform: translateX(0) } 50% { transform: translateX(-5px) } }
+  @keyframes nudgeR { 0%,100% { transform: translateX(0) } 50% { transform: translateX(5px) } }
+  @keyframes fadeup { from { opacity: 0; transform: translateY(16px) } to { opacity: 1; transform: none } }
+</style>
+</helmet>
+
+<div style="min-height:100vh; background:#0b0b0c; color:#eaeaea; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+
+  <!-- nav -->
+  
+
+  <div data-nav-bar="" style="position:sticky; top:0; z-index:40; background:rgba(11,11,12,.55); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); display:flex; flex-wrap:wrap; justify-content:center; gap:14px clamp(16px,3vw,40px); align-items:center; padding:clamp(10px,1.1vw,14px) clamp(16px,3.6vw,44px);">
+        <div style="flex:1 1 {{ navSide }}; min-width: {{ navMin }}; display:flex; gap:20px; align-items:center; justify-content: {{ navJustify2 }}; color:#eaeaea; font-size:11px; letter-spacing:.18em; text-transform:uppercase; white-space:nowrap;">
+          <a href="https://www.instagram.com/oktylerwade/" aria-label="Instagram" style="display:flex; align-items:center; color:#eaeaea; opacity:.82;" style-hover="opacity:1; color:#dcd0ff;">
+            <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M176,24H80A56.06,56.06,0,0,0,24,80v96a56.06,56.06,0,0,0,56,56h96a56.06,56.06,0,0,0,56-56V80A56.06,56.06,0,0,0,176,24Zm40,152a40,40,0,0,1-40,40H80a40,40,0,0,1-40-40V80A40,40,0,0,1,80,40h96a40,40,0,0,1,40,40Zm-88-92a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,84Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,156ZM188,76a12,12,0,1,1-12-12A12,12,0,0,1,188,76Z"></path></svg>
+          </a>
+          <a href="https://www.tiktok.com/@oktylerwade" aria-label="TikTok" style="display:flex; align-items:center; color:#eaeaea; opacity:.82;" style-hover="opacity:1; color:#dcd0ff;">
+            <svg width="20" height="20" viewBox="0 0 256 256" fill="currentColor"><path d="M224,72a48.05,48.05,0,0,1-48-48,8,8,0,0,0-8-8H128a8,8,0,0,0-8,8V156a20,20,0,1,1-28.57-18.08,8,8,0,0,0,4.57-7.23V88a8,8,0,0,0-9.4-7.87C50.91,86.65,24,119.34,24,156a76,76,0,0,0,152,0V120.19a103.29,103.29,0,0,0,48,11.81,8,8,0,0,0,8-8V80A8,8,0,0,0,224,72Zm-8,43.63a87.76,87.76,0,0,1-43.83-15.06A8,8,0,0,0,160,107.2V156a60,60,0,0,1-120,0c0-25.9,17-49.38,40-57.3v26.94A36,36,0,0,0,136,156V32h24.5A64.14,64.14,0,0,0,216,87.5Z"></path></svg>
+          </a>
+          <a href="https://chasingchange.github.io/Home/about/index.html" aria-label="Chasing Change" style="display:flex; align-items:center; padding-top:1px; color:#eaeaea; opacity:.82;" style-hover="opacity:1; color:#dcd0ff;">
+            <span role="img" aria-label="Chasing Change" style="display:block; width:46px; height:20px; background:currentColor; mask-image:url('uploads/chasing-change-mark.png'); mask-size:contain; mask-repeat:no-repeat; mask-position:center; -webkit-mask-image:url('uploads/chasing-change-mark.png'); -webkit-mask-size:contain; -webkit-mask-repeat:no-repeat; -webkit-mask-position:center;"></span>
+          </a>
+        </div>
+        <div onClick="{{ goHome }}" style="position: {{ markPos }}; left: {{ markLeft }}; transform: {{ markTx }}; flex:0 0 auto; cursor:pointer; display:flex; align-items:baseline; gap:9px; line-height:1; white-space:nowrap; color:#eaeaea; font-family:Tinos,'Times New Roman',serif; font-size:30px; letter-spacing:0;" style-hover="color:#dcd0ff;">
+          <span>Tyler</span><span style="font-style:italic; text-transform:uppercase; letter-spacing:.01em;">Wade</span>
+          
+        </div>
+        <div style="flex:1 1 0; display: {{ spacerShow }}; min-width:0;"></div>
+        <div style="flex:1 1 {{ linksSide }}; min-width: {{ navMin }}; display:flex; flex-wrap: {{ navWrap }}; gap: {{ navGap }}; align-items:center; justify-content: {{ navJustify }}; color:#eaeaea; font-size: {{ navSize }}; letter-spacing:.14em; text-transform:uppercase; white-space:nowrap;">
+          
+          <a href="https://chasingchange.github.io/Home/about/index.html" target="_blank" rel="noopener" style="cursor:pointer; color:#eaeaea; opacity:.9; text-decoration:none; padding:6px 0;" style-hover="opacity:1; color:#dcd0ff;">Coaching</a>
+          <span onClick="{{ goDirecting }}" style="cursor:pointer; color:#eaeaea; opacity:.9; padding:6px 0;" style-hover="opacity:1; color:#dcd0ff;">Works</span><span onClick="{{ goGallery }}" style="cursor:pointer; color:#eaeaea; opacity:.9; padding:6px 0;" style-hover="opacity:1; color:#dcd0ff;">Gallery</span>
+          
+          <span onClick="{{ goKit }}" style="cursor:pointer; color:#eaeaea; opacity:.9; padding:6px 0;" style-hover="opacity:1; color:#dcd0ff;">Comp Card</span>
+          
+          <span onClick="{{ goAbout }}" style="cursor:pointer; color:#eaeaea; opacity:.9; padding:6px 0;" style-hover="opacity:1; color:#dcd0ff;">About</span>
+          <span onClick="{{ goContact }}" style="cursor:pointer; color:#eaeaea; opacity:.9; padding:6px 0;" style-hover="opacity:1; color:#dcd0ff;">Contact</span>
+        </div>
+      </div>
+
+  <!-- ================= HOME ================= -->
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <div data-screen-label="Home">
+    <div style="position:relative; height: {{ heroHeight }}; margin-top: {{ heroPull }}; overflow:hidden; background:#0b0b0c;">
+      <sc-if value="{{ heroIsMono }}" hint-placeholder-val="{{ true }}">
+        <div style="position: absolute; inset: 0; background-image: url('uploads/hero-landscape.jpg'); background-size: cover; background-position: 50% 50%; background-repeat: no-repeat; filter: grayscale(1) contrast(1.14) brightness(.86); left: -6px; top: -100px"></div>
+      </sc-if>
+      <sc-if value="{{ heroIsColor }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; background-image:url('uploads/hero-landscape.jpg'); background-size:cover; background-position:50% 50%; background-repeat:no-repeat; filter:contrast(1) brightness(.9);"></div>
+      </sc-if>
+      <sc-if value="{{ heroNarrowMono }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; background-color:#0b0b0c; background-image:url('uploads/hero-portrait.jpg'); background-size:cover; background-position:50% 50%; background-repeat:no-repeat; filter:grayscale(1) contrast(1.14) brightness(.86);"></div>
+      </sc-if>
+      <sc-if value="{{ heroNarrowColor }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute; inset:0; background-color:#0b0b0c; background-image:url('uploads/hero-portrait.jpg'); background-size:cover; background-position:50% 50%; background-repeat:no-repeat; filter:contrast(1) brightness(.9);"></div>
+      </sc-if>
+      
+
+
+      <div style="position:absolute; left:0; right:0; bottom:36px; display:flex; justify-content:center; z-index:20;">
+        
+      </div>
+    </div>
+
+  </div>
+  </sc-if>
+
+
+
+
+
+  <!-- ================= GALLERY ================= -->
+  <sc-if value="{{ isGallery }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Gallery" style="animation:fadeup .5s ease both;">
+    <div style="padding:clamp(28px,4vw,56px) clamp(16px,3.6vw,44px) clamp(64px,9vw,120px);">
+      <div style="display: flex; justify-content: center; font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #dcd0ff; padding-bottom: 40px">
+        <span style="font-size: 28px">Gallery</span>
+      </div>
+
+
+      <div ref="{{ galRef }}" style="display:flex; flex-direction:column; gap:0;">
+        <sc-for list="{{ galRows }}" as="row" hint-placeholder-count="3">
+          <div style="display:flex; gap:0; height: {{ row.h }};">
+            <sc-for list="{{ row.items }}" as="it" hint-placeholder-count="3">
+              <div onClick="{{ it.onOpen }}" style="width: {{ it.w }}; height:100%; cursor:zoom-in;">
+                <div style="width:100%; height:100%; background-image: {{ it.bg }}; background-size:cover; background-position: {{ it.pos }}; background-color:#141416; pointer-events:none;"></div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+
+    </div>
+  </div>
+  </sc-if>
+
+
+  <!-- ================= DIRECTING ================= -->
+  <sc-if value="{{ isDirecting }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Works" style="animation:fadeup .5s ease both;">
+    <div style="padding:clamp(28px,4vw,56px) clamp(16px,4vw,56px) clamp(64px,9vw,120px);">
+      <div style="display:flex; justify-content:center; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:#dcd0ff; padding-bottom:40px;">
+        <span style="font-size: 28px">Works</span>
+      </div>
+      
+
+      <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:14px clamp(18px,3vw,34px); align-items:baseline; font-size:11px; letter-spacing:.18em; text-transform:uppercase; padding-bottom:clamp(30px,5vw,52px);">
+        <sc-for list="{{ workCats }}" as="c" hint-placeholder-count="4">
+          <span onClick="{{ c.onClick }}" style="cursor:pointer; color: {{ c.color }};">{{ c.label }}</span>
+        </sc-for>
+      </div>
+
+      <div style="max-width:900px; margin:0 auto; display:flex; flex-direction:column;">
+        <sc-for list="{{ works }}" as="w" hint-placeholder-count="3">
+          <div style="display:flex; flex-wrap:wrap; gap:14px 32px; justify-content:space-between; align-items:baseline; padding:30px 0; border-top:1px solid rgba(234,234,234,.14);">
+            <div style="flex:1 1 280px; min-width:0; display:flex; flex-direction:column; gap:10px;">
+              
+              <h3 style="margin:0; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-weight:600; font-size:clamp(26px,4.6vw,42px); line-height:1.04; letter-spacing:-.025em;">{{ w.title }}</h3>
+              
+            </div>
+            <a href="{{ w.href }}" target="_blank" rel="noopener" onClick="{{ w.onOpen }}" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.2em; text-transform:uppercase; white-space:nowrap; color:#dcd0ff;">{{ w.cta }}</a>
+          </div>
+        </sc-for>
+        
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ================= COMP CARD ================= -->
+  <sc-if value="{{ isKit }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Comp Card" style="background:#f2f0ec; color:#17171a; animation:fadeup .5s ease both;">
+    <div style="padding:clamp(28px,4vw,56px) clamp(16px,4vw,56px) clamp(64px,8vw,112px); max-width:1270px; margin:0 auto;">
+      <div style="display:flex; justify-content:center; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:#6f5ba8; padding-bottom:40px;">
+        <a href="mailto:tywadebusiness@gmail.com" style="color:#6b55b0;">Download full comp card (PDF)</a>
+      </div>
+      <h1 style="margin: 0 0 64px; text-align: center; font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; font-weight: 600; font-size: 28px; line-height: .94; letter-spacing: -.03em; text-transform: uppercase">Comp card</h1>
+
+      <div style="display:flex; flex-direction:column; gap:36px;">
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <span style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:#6b675f;">Headshots</span>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px;">
+              <div onClick="{{ kitOpen1 }}" style="cursor:zoom-in; aspect-ratio:4/5; background-image:url('uploads/IMG_0944.jpg'); background-size:cover; background-position:50% 25%;"></div>
+              <div onClick="{{ kitOpen2 }}" style="cursor:zoom-in; aspect-ratio:4/5; background-image:url('uploads/lr3.jpg'); background-size:cover; background-position:50% 50%;"></div>
+              <div onClick="{{ kitOpen3 }}" style="cursor:zoom-in; aspect-ratio:4/5; background-image:url('uploads/profile-photo.jpg'); background-size:cover; background-position:50% 14%;"></div>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            <span style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:#6b675f;">Editorial &amp; fitness</span>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px;">
+              <div onClick="{{ kitOpen4 }}" style="cursor:zoom-in; aspect-ratio:4/5; background-image:url('uploads/DSC_0804.jpg'); background-size:cover; background-position:52% 22%;"></div>
+              <div onClick="{{ kitOpen5 }}" style="cursor:zoom-in; aspect-ratio:4/5; background-image:url('uploads/lr15.jpg'); background-size:cover; background-position:center;"></div>
+              <div onClick="{{ kitOpen6 }}" style="cursor:zoom-in; aspect-ratio:4/5; background-image:url('uploads/profile-main.jpg'); background-size:cover; background-position:center;"></div>
+            </div>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            
+            
+          </div>
+          <div style="display:flex; flex-direction:column; gap:14px;">
+            
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:0 32px;">
+              <div style="display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid rgba(23,23,26,.14); font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.1em; text-transform:uppercase;"><span style="color:#6b675f;">Height</span><span>5’9”</span></div>
+              <div style="display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid rgba(23,23,26,.14); font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.1em; text-transform:uppercase;"><span style="color:#6b675f;">Chest</span><span>39 in</span></div>
+              <div style="display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid rgba(23,23,26,.14); font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.1em; text-transform:uppercase;"><span style="color:#6b675f;">Waist</span><span>29 in</span></div>
+              <div style="display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid rgba(23,23,26,.14); font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.1em; text-transform:uppercase;"><span style="color:#6b675f;">Hips</span><span>36.5 in</span></div>
+              <div style="display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid rgba(23,23,26,.14); font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.1em; text-transform:uppercase;"><span style="color:#6b675f;">Neck</span><span>16 in</span></div>
+              <div style="display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid rgba(23,23,26,.14); font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.1em; text-transform:uppercase;"><span style="color:#6b675f;">Inseam</span><span>30 in</span></div>
+              <div style="display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid rgba(23,23,26,.14); font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.1em; text-transform:uppercase;"><span style="color:#6b675f;">Suit</span><span>40R</span></div>
+              <div style="display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid rgba(23,23,26,.14); font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.1em; text-transform:uppercase;"><span style="color:#6b675f;">Hair</span><span>Brown</span></div>
+              <div style="display:flex; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid rgba(23,23,26,.14); font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.1em; text-transform:uppercase;"><span style="color:#6b675f;">Eyes</span><span>Hazel</span></div>
+            </div>
+          </div>
+        </div><div style="display: grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap: 72px; align-items: start; width: 100%; max-width: 1158px; margin: 0 auto">
+        
+
+        
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ================= ABOUT ================= -->
+  <sc-if value="{{ isAbout }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="About" style="animation:fadeup .5s ease both;">
+    <div style="padding:clamp(28px,4vw,56px) clamp(16px,4vw,56px) clamp(64px,8vw,112px);">
+      <div style="display:flex; justify-content:center; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:#dcd0ff; padding-bottom:40px;">
+        <span style="color: #DCD0FF; font-size: 28px">ABOUT</span>
+      </div>
+      <div style="display:block;">
+        <div style="flex:1 1 340px; min-width:0; max-width:none; width:100%; display:block;">
+          <sc-if value="{{ aboutWide }}" hint-placeholder-val="{{ true }}">
+          <div style="float:right; width:min(42%,460px); margin:6px 0 28px clamp(32px,4vw,64px); aspect-ratio:3/4; background-image:url('uploads/profile-athletic.jpg'); background-size:cover; background-position:50% 22%; filter:grayscale(1) contrast(1.00);"></div>
+          </sc-if>
+          <p style="margin:0; max-width:760px; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:clamp(26px,5vw,36px); line-height:1.22; letter-spacing:-.025em; text-wrap:pretty;"><a href="https://chasingchange.github.io/Home/about/index.html">LIFE COACH<br></a><span style="letter-spacing: -0.9px;">DIRECTOR<br></span>FOUNDER<br>AUTHOR<br>MODEL</p>
+          <sc-if value="{{ aboutNarrow }}" hint-placeholder-val="{{ false }}">
+          <div style="width:100%; max-width:500px; aspect-ratio:3/4; background-image:url('uploads/profile-athletic.jpg'); background-size:cover; background-position:50% 22%; filter:grayscale(1) contrast(1.00);"></div>
+          </sc-if>
+          <div style="margin:28px 0 0; max-width:760px; font-size:19px; font-weight:400; line-height:1.7; color:#b8b4ac; text-wrap:pretty;"><p style="caret-color: rgb(255, 255, 255); color: rgb(255, 255, 255); text-decoration-thickness: auto; text-decoration-style: solid; font-family: Helvetica Neue; font-size: 18px">Tyler Wade is a life coach, director, founder, author, and model based in Austin, Texas. His work is driven by a belief that the strongest stories, both on the page and in real life, are built through growth, discipline, and the courage to embrace change.</p><p style="caret-color: rgb(255, 255, 255); color: rgb(255, 255, 255); text-decoration-thickness: auto; text-decoration-style: solid; font-size: 18px">As the founder of Chasing Change, Tyler coaches ambitious professionals in developing their health, confidence, and personal direction through sustainable fitness and lifestyle transformation. His coaching philosophy extends beyond physical results, emphasizing the <i>holistic</i> <i>habits</i> and mindset that create lasting change.</p><p style="caret-color: rgb(255, 255, 255); color: rgb(255, 255, 255); text-decoration-thickness: auto; text-decoration-style: solid; font-size: 18px">Alongside his work as a coach, Tyler is an author developing original speculative fiction, screenplays, and plays that explore identity, ambition, and the complexities of the human experience. His creative background shapes the way he approaches every collaboration, bringing curiosity, intention, and authenticity to his work in front of the camera.</p><p style="caret-color: rgb(255, 255, 255); color: rgb(255, 255, 255); text-decoration-thickness: auto; text-decoration-style: solid; font-size: 18px">Whether partnering with brands, coaching clients, or creating original stories, Tyler is passionate about helping people see what they're capable of and creating work that leaves a lasting impact for decades to come.</p></div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ================= CONTACT ================= -->
+  <sc-if value="{{ isContact }}" hint-placeholder-val="{{ false }}">
+  <div data-screen-label="Contact" style="animation:fadeup .5s ease both;">
+    <div style="padding:clamp(28px,4vw,56px) clamp(16px,4vw,56px) clamp(56px,7vw,96px); display:flex; flex-direction:column;">
+      <div style="display:flex; justify-content:center; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:#dcd0ff; padding-bottom:40px;">
+        <span style="color: #DCD0FF; font-size: 28px">Contact</span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:18px;">
+        <span style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:#8c8880;"><span style="letter-spacing: 2.42px;">PARTNERSHIPS |</span>&nbsp;PUBLISHING | PRESS</span>
+        <a href="mailto:tywadebusiness@gmail.com" style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:clamp(22px,6.4vw,56px); line-height:1.05; letter-spacing:-.03em; word-break:break-word; color:#eaeaea;">tywadebusiness@gmail.com</a>
+        <div style="display:flex; gap:34px; font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:11px; letter-spacing:.2em; text-transform:uppercase;">
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+      <div ref="{{ lbRef }}" data-lb="scrim" style="position:fixed; inset:0; z-index:9999; background:rgba(11,11,12,.96); display: {{ lbDisplay }}; align-items:center; justify-content:center; padding:clamp(12px,3vw,48px);">
+          <img data-lb="img" alt="" style="max-width:94vw; max-height:92vh; width:auto; height:auto; object-fit:contain; display:block;">
+          <span data-lb="prev" style="position:absolute; left:clamp(8px,3vw,38px); top:50%; transform:translateY(-50%); width:64px; height:64px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; color:#dcd0ff; animation:nudgeL 1.8s ease-in-out infinite;" style-hover="background:rgba(220,208,255,.16);">
+            <svg width="36" height="36" viewBox="0 0 256 256" fill="currentColor"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"></path></svg>
+          </span>
+          <span data-lb="next" style="position:absolute; right:clamp(8px,3vw,38px); top:50%; transform:translateY(-50%); width:64px; height:64px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; color:#dcd0ff; animation:nudgeR 1.8s ease-in-out infinite;" style-hover="background:rgba(220,208,255,.16);">
+            <svg width="36" height="36" viewBox="0 0 256 256" fill="currentColor"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg>
+          </span>
+          <span data-lb="close" style="position:absolute; top:clamp(14px,3vw,32px); right:clamp(14px,3vw,32px); cursor:pointer; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:#dcd0ff;">Close</span>
+      </div>
+
+  <!-- footer -->
+  <div style="display:flex; justify-content:space-between; padding:28px clamp(16px,4vw,56px); border-top:1px solid rgba(234,234,234,.1); font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:10px; letter-spacing:.2em; text-transform:uppercase; color:#57544e;">
+    <span>© 2026 Tyler Wade</span>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;heroTone&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Black &amp; white&quot;,&quot;Full colour&quot;],&quot;default&quot;:&quot;Black &amp; white&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Hero&quot;}}">
+class Component extends DCLogic {
+  state = { page: "home", cat: "all", order: null, dragSrc: null, dragOver: null, contW: 0, work: "books", lb: null, navH: 0, vw: typeof window !== "undefined" ? window.innerWidth : 1200 };
+
+  items = [
+    { src: "uploads/track-stretch.jpg", caption: "Track — stretch", cat: "fitness", w: "clamp(240px,24vw,340px)", ar: "2/3", pos: "50% 35%" },
+    { src: "uploads/track-stride.jpg", caption: "Track — stride", cat: "fitness", w: "clamp(260px,26vw,360px)", ar: "1/1", pos: "50% 45%" },
+    { src: "uploads/track-run-away.jpg", caption: "Track — sprint", cat: "athletic", w: "clamp(240px,24vw,340px)", ar: "3/4", pos: "50% 40%" },
+    { src: "uploads/field-stand.jpg", caption: "Field — portrait", cat: "athletic", w: "clamp(240px,24vw,340px)", ar: "4/5", pos: "50% 30%" },
+    { src: "uploads/track-legs.jpg", caption: "Track — detail", cat: "athletic", w: "clamp(240px,24vw,340px)", ar: "5/4", pos: "50% 45%" },
+    { weight: 1.35, src: "uploads/DSC08648-c88e36ef.jpg", cat: "swim", w: "clamp(280px,30vw,410px)", ar: "2/3", pos: "50% 40%" },
+    { weight: 0.85, src: "uploads/DSC08792-b74bff54.jpg", cat: "fitness", w: "clamp(240px,24vw,340px)", ar: "4/5", pos: "50% 45%" },
+    { weight: 1.1, src: "uploads/DSC08888-315cc43c.jpg", cat: "swim", w: "clamp(260px,26vw,360px)", ar: "3/4", pos: "50% 35%" },
+    { weight: 0.8, src: "uploads/DSC08663-a09dd446.jpg", cat: "athletic", w: "clamp(240px,22vw,320px)", ar: "1/1", pos: "50% 55%" },
+    { weight: 1.25, src: "uploads/DSC09002.jpg", cat: "swim", w: "clamp(280px,28vw,390px)", ar: "2/3", pos: "50% 50%" },
+    { weight: 1.15, src: "uploads/DSC08694-a649ab51.jpg", cat: "swim", w: "clamp(320px,34vw,470px)", ar: "3/4", pos: "50% 45%" },
+    { weight: 0.9, src: "uploads/DSC08688-db0de1bc.jpg", cat: "swim", w: "clamp(240px,24vw,330px)", ar: "5/4", pos: "50% 45%" },
+    { weight: 1.2, src: "uploads/DSC08757-e0e6add4.jpg", cat: "swim", w: "clamp(260px,26vw,360px)", ar: "4/5", pos: "50% 40%" },
+    { weight: 0.85, src: "uploads/DSC08810-b79e6125.jpg", cat: "swim", w: "clamp(240px,22vw,320px)", ar: "2/3", pos: "50% 40%" },
+    { weight: 1.3, src: "uploads/DSC08950.jpg", cat: "swim", w: "clamp(280px,28vw,390px)", ar: "3/4", pos: "50% 45%" },
+    { src: "uploads/DSC04427 from Lightroom.jpg", caption: "Fitness — studio", cat: "fitness", w: "clamp(260px,28vw,380px)", ar: "1/1", pos: "50% 30%" },
+    { src: "uploads/Photo from Lightroom DSC05271.jpg", caption: "Editorial — studio", cat: "editorial", w: "clamp(280px,30vw,410px)", ar: "2/3", pos: "50% 25%" },
+    { src: "uploads/lr3.jpg", caption: "Portrait", cat: "portrait", w: "clamp(240px,22vw,320px)", ar: "4/5", pos: "50% 12%" },
+    { src: "uploads/glenn2.jpg", caption: "Glenn Adams — Jan 2026", cat: "editorial", w: "clamp(320px,36vw,470px)", ar: "3/4", pos: "50% 18%" },
+    { src: "uploads/DSC_0804.jpg", caption: "Studio — editorial", cat: "editorial", w: "clamp(240px,22vw,330px)", ar: "2/3", pos: "52% 22%" },
+    { src: "uploads/lr15.jpg", caption: "Fitness", cat: "fitness", w: "clamp(220px,20vw,300px)", ar: "5/4", pos: "center" },
+    { src: "uploads/profile-main.jpg", caption: "Portrait — main", cat: "portrait", w: "clamp(240px,24vw,340px)", ar: "4/5", pos: "50% 18%" },
+    { src: "uploads/lr54.jpg", caption: "Editorial", cat: "editorial", w: "clamp(260px,26vw,380px)", ar: "1/1", pos: "50% 15%" },
+    { src: "uploads/IMG_0944.jpg", caption: "Headshot", cat: "portrait", w: "clamp(220px,20vw,300px)", ar: "3/4", pos: "50% 22%" },
+    { src: "uploads/DSC05069.jpg", caption: "Test", cat: "portrait", w: "clamp(220px,21vw,300px)", ar: "2/3", pos: "center" },
+  ];
+
+  cats = [
+    { key: "all", label: "Overview" },
+    { key: "editorial", label: "Editorial" },
+    { key: "portrait", label: "Portrait" },
+    { key: "swim", label: "Swim" },
+    { key: "athletic", label: "Athletic" },
+    { key: "fitness", label: "Fitness" },
+  ];
+
+  works = [
+    { kind: "TV pilot", title: "20 Something", cat: "tv", note: "Half-hour pilot.", href: "uploads/20 SOMETHING Pilot Excerpt.pdf", cta: "Read excerpt (PDF)" },
+    { kind: "TV pilot", title: "GENESIS, TONIGHT!", cat: "tv", note: "Pilot.", href: "uploads/GENESIS, TONIGHT! Pilot Excerpt.pdf", cta: "Read excerpt (PDF)" },
+    { kind: "Play", title: "Beau", cat: "plays", note: "Stage play.", href: "uploads/Beau Excerpt.pdf", cta: "Read excerpt (PDF)" },
+    { kind: "Play", title: "This Boy That I've Found", cat: "plays", note: "Stage play.", href: "uploads/This Boy That I've Found Excerpt.pdf", cta: "Read excerpt (PDF)" },
+    { kind: "Short film", title: "Acey", cat: "shorts", note: "Short film.", href: "uploads/Acey Excerpt.pdf", cta: "Read excerpt (PDF)" },
+    { kind: "Novel — in submission", title: "The Sword of Damocles", cat: "books", note: "When a disgraced theater teacher loses everything, he must choose between protecting himself from a society that sees him as a threat or risking everything to save the friend he betrayed.", href: "uploads/The Sword of Damocles Excerpt.pdf", cta: "Read excerpt (PDF)" },
+    { kind: "Novel — in progress", title: "", cat: "books", note: "", href: "", cta: "" },
+  ];
+
+  workCats = [
+    { key: "books", label: "Books" },
+    { key: "shorts", label: "Short Films" },
+    { key: "tv", label: "TV" },
+    { key: "plays", label: "Plays" },
+  ];
+
+  ratio(ar) { const [w, h] = String(ar).split("/").map(Number); return w / h; }
+
+  // saved order (drag to rearrange); falls back to the authored order
+  order() {
+    const saved = this.state.order;
+    if (!saved) return this.items;
+    const byId = Object.fromEntries(this.items.map(i => [i.src, i]));
+    const listed = saved.map(src => byId[src]).filter(Boolean);
+    const rest = this.items.filter(i => !saved.includes(i.src));
+    return listed.concat(rest);
+  }
+
+  move(fromSrc, toSrc) {
+    if (!fromSrc || !toSrc || fromSrc === toSrc) return;
+    const list = this.order().map(i => i.src);
+    const from = list.indexOf(fromSrc);
+    const to = list.indexOf(toSrc);
+    if (from < 0 || to < 0) return;
+    list.splice(to, 0, list.splice(from, 1)[0]);
+    this.setState({ order: list, dragSrc: null, dragOver: null });
+    try { localStorage.setItem("tw-gallery-order", JSON.stringify(list)); } catch (e) {}
+  }
+
+  componentDidMount() {
+    try {
+      const saved = JSON.parse(localStorage.getItem("tw-gallery-order") || "null");
+      if (Array.isArray(saved)) this.setState({ order: saved });
+    } catch (e) {}
+    this.measure();
+    this.onResize = () => this.measure();
+    window.addEventListener("resize", this.onResize);
+    this.onKey = (e) => {
+      if (!this.state.lb) return;
+      if (e.key === "Escape") this.setState({ lb: null });
+      if (e.key === "ArrowLeft") this.lbStep(-1);
+      if (e.key === "ArrowRight") this.lbStep(1);
+    };
+    window.addEventListener("keydown", this.onKey);
+  }
+
+  componentDidUpdate() { this.measure(); this.syncLb(); }
+
+  syncLb() {
+    if (!this.lbEl) return;
+    const img = this.lbEl.querySelector("[data-lb='img']");
+    if (!img) return;
+    const want = this.state.lb ? encodeURI(this.state.lb) : "";
+    if (!want) { img.removeAttribute("src"); return; }
+    if (img.getAttribute("src") !== want) img.setAttribute("src", want);
+  }
+
+  measure() {
+    if (typeof window !== "undefined" && window.innerWidth !== this.state.vw) this.setState({ vw: window.innerWidth });
+    const nav = document.querySelector("[data-nav-bar]");
+    const nh = nav ? Math.round(nav.getBoundingClientRect().height) : 0;
+    if (nh && nh !== this.state.navH) this.setState({ navH: nh });
+    const w = this.galEl && this.galEl.clientWidth;
+    if (w && w !== this.state.contW) this.setState({ contW: w });
+  }
+
+  tile(i) {
+    return {
+      ...i,
+      bg: "url('" + encodeURI(i.src.replace("uploads/", "uploads/t/").replace(/\.(jpe?g|png)$/i, ".webp")) + "')",
+      onOpen: (e) => { if (e) { e.stopPropagation(); this.lbOpenedAt = e.timeStamp; } this.lbSet = null; this.setState({ lb: i.src }); },
+    };
+  }
+
+  kitList = ["uploads/IMG_0944.jpg","uploads/lr3.jpg","uploads/profile-photo.jpg","uploads/DSC_0804.jpg","uploads/lr15.jpg","uploads/profile-main.jpg"];
+
+  openLb(src) {
+    return (e) => {
+      if (e) { e.stopPropagation(); this.lbOpenedAt = e.timeStamp; }
+      this.lbSet = this.kitList;
+      this.setState({ lb: src });
+    };
+  }
+
+  lbStep(d) {
+    const list = this.lbSet || this.order().map(i => i.src);
+    const n = list.indexOf(this.state.lb);
+    if (n < 0) return;
+    this.setState({ lb: list[(n + d + list.length) % list.length] });
+  }
+
+  // justified rows: aspect ratios preserved; every row fills the width
+  rows() {
+    const W = this.state.contW || 1200;
+    const targets = [430, 330, 520, 370, 460];
+    const maxH = 560;
+    const R = (i) => this.ratio(i.ar);
+    const items = this.order();
+
+    // group into rows by target height
+    const groups = [];
+    let row = [], sum = 0;
+    items.forEach(i => {
+      row.push(i); sum += R(i);
+      if (sum * targets[groups.length % targets.length] >= W) { groups.push(row); row = []; sum = 0; }
+    });
+    if (row.length) groups.push(row);
+
+    // rebalance the trailing row: pull items down until it can fill at a sane height
+    const sumOf = (g) => g.reduce((t, i) => t + R(i), 0);
+    while (groups.length > 1) {
+      const last = groups[groups.length - 1];
+      const prev = groups[groups.length - 2];
+      if (W / sumOf(last) <= maxH || prev.length < 2) break;
+      last.unshift(prev.pop());
+    }
+
+    return groups.map((g, n) => {
+      const h = Math.min(W / sumOf(g), maxH);
+      let used = 0;
+      const tiles = g.map((i, k) => {
+        const w = k === g.length - 1 ? W - used : Math.round(h * R(i));
+        used += w;
+        return { ...this.tile(i), w: w + "px" };
+      });
+      return { h: Math.round(h) + "px", items: tiles };
+    });
+  }
+
+  go(page) {
+    return () => {
+      this.setState({ page });
+      if (typeof window !== "undefined") window.scrollTo(0, 0);
+    };
+  }
+
+  renderVals() {
+    const p = this.state.page;
+    const tone = this.props.heroTone ?? "Black & white";
+    return {
+      workCats: this.workCats.map(c => ({
+        label: c.label,
+        color: (this.state.work || "books") === c.key ? "#dcd0ff" : "rgba(234,234,234,.62)",
+        onClick: () => this.setState({ work: c.key }),
+      })),
+      works: (() => {
+        const list = this.works.filter(w => w.cat === (this.state.work || "books"))
+          .map(w => {
+            const href = w.href ? encodeURI(w.href) : "";
+            return { ...w, href, onOpen: href ? (e) => {
+              const base = new URL(href, document.baseURI).href;
+              let win = null;
+              try { win = window.open(base, "_blank"); } catch (_) {}
+              if (win) { e.preventDefault(); return; }
+              try { window.top.location.href = base; e.preventDefault(); } catch (_) { /* let the anchor navigate */ }
+            } : null };
+          });
+        return list.length ? list : [{ kind: "", title: "Coming soon", note: "", href: "", cta: "" }];
+      })(),
+      lbOpen: !!this.state.lb,
+      lbRef: (el) => {
+        this.lbEl = el;
+        if (!el) return;
+        // hoist out of the transformed design canvas so position:fixed behaves;
+        // the node is never unmounted, so React's removal path stays intact
+        if (el.parentNode !== document.body) document.body.appendChild(el);
+        // React's delegated listeners live on its root container, which no longer
+        // contains this node — wire clicks natively instead
+        this.syncLb();
+        if (!el.__lbWired) {
+          el.__lbWired = true;
+          el.addEventListener("click", (e) => {
+            // the click that opened the lightbox must not also hit a control
+            if (this.lbOpenedAt && e.timeStamp - this.lbOpenedAt < 50) return;
+            const hit = e.target.closest("[data-lb]");
+            const role = hit && hit.getAttribute("data-lb");
+            if (role === "prev") { e.stopPropagation(); this.lbStep(-1); }
+            else if (role === "next") { e.stopPropagation(); this.lbStep(1); }
+            else if (role === "img") { e.stopPropagation(); }
+            else this.setState({ lb: null });
+          });
+        }
+      },
+      kitOpen1: this.openLb(this.kitList[0]),
+      kitOpen2: this.openLb(this.kitList[1]),
+      kitOpen3: this.openLb(this.kitList[2]),
+      kitOpen4: this.openLb(this.kitList[3]),
+      kitOpen5: this.openLb(this.kitList[4]),
+      kitOpen6: this.openLb(this.kitList[5]),
+      lbDisplay: this.state.lb ? "flex" : "none",
+      lbClose: () => this.setState({ lb: null }),
+      galRef: (el) => { this.galEl = el; },
+      galRows: this.rows(),
+      heroIsMono: tone === "Black & white" && this.state.vw >= 700,
+      heroIsColor: tone !== "Black & white" && this.state.vw >= 700,
+      heroNarrowMono: tone === "Black & white" && this.state.vw < 700,
+      heroNarrowColor: tone !== "Black & white" && this.state.vw < 700,
+      navJustify: this.state.vw < 820 ? "center" : "flex-end",
+      navJustify2: this.state.vw < 820 ? "center" : "flex-start",
+      navSide: this.state.vw < 820 ? "100%" : "0",
+      navMin: "0",
+      linksSide: this.state.vw < 820 ? "100%" : "0",
+      spacerShow: "none",
+      markPos: "static",
+      markLeft: "auto",
+      markTx: "none",
+      navWrap: this.state.vw < 820 ? "wrap" : "nowrap",
+      navGap: this.state.vw < 820 ? "10px 26px" : (this.state.vw < 1000 ? "9px" : (this.state.vw < 1150 ? "12px" : "16px")),
+      navSize: this.state.vw < 820 ? "13px" : (this.state.vw < 1000 ? "9px" : (this.state.vw < 1150 ? "10px" : "11px")),
+      heroPull: (this.state.navH > 110 || this.state.vw < 700) ? "0" : "-" + (this.state.navH || 84) + "px",
+      heroHeight: this.state.vw < 700 ? "calc(100svh - 170px)" : "calc(100svh - 70px)",
+      aboutWide: this.state.vw >= 900,
+      aboutNarrow: this.state.vw < 900,
+      isHome: p === "home",
+      isGallery: p === "gallery",
+      isDirecting: p === "directing",
+      isKit: p === "kit",
+      isAbout: p === "about",
+      isContact: p === "contact",
+      goHome: this.go("home"),
+      goGallery: this.go("gallery"),
+      goDirecting: this.go("directing"),
+      goKit: this.go("kit"),
+      goAbout: this.go("about"),
+      goContact: this.go("contact"),
+    };
+  }
+}
+</script>
+</body>
+</html>
