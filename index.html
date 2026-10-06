@@ -301,6 +301,10 @@ class Component extends DCLogic {
     { src: "uploads/profile-main.jpg", caption: "Portrait — main", cat: "portrait", w: "clamp(240px,24vw,340px)", ar: "4/5", pos: "50% 18%" },
     { src: "uploads/lr54.jpg", caption: "Editorial", cat: "editorial", w: "clamp(260px,26vw,380px)", ar: "1/1", pos: "50% 15%" },
     { src: "uploads/IMG_0944.jpg", caption: "Headshot", cat: "portrait", w: "clamp(220px,20vw,300px)", ar: "3/4", pos: "50% 22%" },
+    { src: "uploads/fitness-towel.jpg", caption: "Fitness — studio", cat: "fitness", w: "clamp(240px,24vw,340px)", ar: "3/4", pos: "50% 30%" },
+    { src: "uploads/fitness-neck.jpg", caption: "Fitness — studio", cat: "fitness", w: "clamp(240px,24vw,340px)", ar: "3/4", pos: "50% 30%" },
+    { src: "uploads/fitness-look-down.jpg", caption: "Fitness — studio", cat: "fitness", w: "clamp(240px,24vw,340px)", ar: "3/4", pos: "50% 30%" },
+    { src: "uploads/fitness-bench.jpg", caption: "Fitness — studio", cat: "fitness", w: "clamp(240px,24vw,340px)", ar: "3/4", pos: "50% 30%" },
     { src: "uploads/DSC05069.jpg", caption: "Test", cat: "portrait", w: "clamp(220px,21vw,300px)", ar: "2/3", pos: "center" },
   ];
 
@@ -615,7 +619,8 @@ class Component extends DCLogic {
   }
 
   // real file aspect ratios (width / height); everything else is 2:3 portrait
-  realRatios = { "uploads/DSC08694-a649ab51.jpg": 1.294, "uploads/lr54.jpg": 0.952, "uploads/IMG_0944.jpg": 0.617 };
+  realRatios = { "uploads/DSC08694-a649ab51.jpg": 1.294, "uploads/lr54.jpg": 0.952, "uploads/IMG_0944.jpg": 0.617,
+    "uploads/fitness-towel.jpg": 0.75, "uploads/fitness-neck.jpg": 0.75, "uploads/fitness-look-down.jpg": 0.75, "uploads/fitness-bench.jpg": 0.75 };
 
   // unequal-width columns; every photo uncropped at its real ratio, placed in the shortest column
   cols() {
