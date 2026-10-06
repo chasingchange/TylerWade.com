@@ -110,12 +110,12 @@
       </div>
 
 
-      <div ref="{{ galRef }}" style="display:flex; flex-direction:column; gap:0;">
-        <sc-for list="{{ galRows }}" as="row" hint-placeholder-count="3">
-          <div style="display:flex; gap:0; height: {{ row.h }};">
-            <sc-for list="{{ row.items }}" as="it" hint-placeholder-count="3">
-              <div onClick="{{ it.onOpen }}" style="width: {{ it.w }}; height:100%; cursor:zoom-in;">
-                <div style="width:100%; height:100%; background-image: {{ it.bg }}; background-size:cover; background-position: {{ it.pos }}; background-color:#141416; pointer-events:none;"></div>
+      <div ref="{{ galRef }}" style="display:flex; align-items:flex-start; gap:8px;">
+        <sc-for list="{{ galCols }}" as="col" hint-placeholder-count="5">
+          <div style="flex: {{ col.flex }}; min-width:0; display:flex; flex-direction:column; gap:8px;">
+            <sc-for list="{{ col.items }}" as="it" hint-placeholder-count="5">
+              <div onClick="{{ it.onOpen }}" style="cursor:zoom-in; background:#141416; aspect-ratio: {{ it.ratio }}; overflow:hidden;">
+                <img src="{{ it.thumb }}" alt="" loading="lazy" style="display:block; width:100%; height:100%; object-fit:contain; pointer-events:none;">
               </div>
             </sc-for>
           </div>
@@ -301,6 +301,15 @@ class Component extends DCLogic {
     { src: "uploads/profile-main.jpg", caption: "Portrait — main", cat: "portrait", w: "clamp(240px,24vw,340px)", ar: "4/5", pos: "50% 18%" },
     { src: "uploads/lr54.jpg", caption: "Editorial", cat: "editorial", w: "clamp(260px,26vw,380px)", ar: "1/1", pos: "50% 15%" },
     { src: "uploads/IMG_0944.jpg", caption: "Headshot", cat: "portrait", w: "clamp(220px,20vw,300px)", ar: "3/4", pos: "50% 22%" },
+    { src: "uploads/fitness-towel.jpg", caption: "Fitness — studio", cat: "fitness", w: "clamp(240px,24vw,340px)", ar: "3/4", pos: "50% 30%" },
+    { src: "uploads/fitness-neck.jpg", caption: "Fitness — studio", cat: "fitness", w: "clamp(240px,24vw,340px)", ar: "3/4", pos: "50% 30%" },
+    { src: "uploads/fitness-look-down.jpg", caption: "Fitness — studio", cat: "fitness", w: "clamp(240px,24vw,340px)", ar: "3/4", pos: "50% 30%" },
+    { src: "uploads/fitness-bench.jpg", caption: "Fitness — studio", cat: "fitness", w: "clamp(240px,24vw,340px)", ar: "3/4", pos: "50% 30%" },
+    { src: "uploads/editorial-jeans.jpg", caption: "Editorial — studio", cat: "editorial", w: "clamp(240px,24vw,340px)", ar: "3/4", pos: "50% 30%" },
+    { src: "uploads/editorial-jeans-smile.jpg", caption: "Editorial — studio", cat: "editorial", w: "clamp(240px,24vw,340px)", ar: "3/4", pos: "50% 30%" },
+    { src: "uploads/editorial-profile.jpg", caption: "Editorial — studio", cat: "editorial", w: "clamp(240px,24vw,340px)", ar: "3/4", pos: "50% 30%" },
+    { src: "uploads/fitness-flex.jpg", caption: "Fitness — studio", cat: "fitness", w: "clamp(240px,24vw,340px)", ar: "3/4", pos: "50% 30%" },
+    { src: "uploads/fitness-tee.jpg", caption: "Fitness — studio", cat: "fitness", w: "clamp(240px,24vw,340px)", ar: "3/4", pos: "50% 30%" },
     { src: "uploads/DSC05069.jpg", caption: "Test", cat: "portrait", w: "clamp(220px,21vw,300px)", ar: "2/3", pos: "center" },
   ];
 
@@ -614,6 +623,28 @@ class Component extends DCLogic {
     this.setState({ lb: list[(n + d + list.length) % list.length] });
   }
 
+  // real file aspect ratios (width / height); everything else is 2:3 portrait
+  realRatios = { "uploads/DSC08694-a649ab51.jpg": 1.294, "uploads/lr54.jpg": 0.952, "uploads/IMG_0944.jpg": 0.617,
+    "uploads/fitness-towel.jpg": 0.75, "uploads/fitness-neck.jpg": 0.75, "uploads/fitness-look-down.jpg": 0.75, "uploads/fitness-bench.jpg": 0.75,
+    "uploads/editorial-jeans.jpg": 0.75, "uploads/editorial-jeans-smile.jpg": 0.75, "uploads/editorial-profile.jpg": 0.75, "uploads/fitness-flex.jpg": 0.75, "uploads/fitness-tee.jpg": 0.75 };
+
+  // unequal-width columns; every photo uncropped at its real ratio, placed in the shortest column
+  cols() {
+    const W = this.state.contW || 1200, gap = 8;
+    const flex = W >= 1000 ? [1.3, 1, 1.18, 0.86, 1.22] : W >= 640 ? [1.25, 0.95, 1.12] : [1.15, 1];
+    const total = flex.reduce((a, b) => a + b, 0);
+    const avail = W - gap * (flex.length - 1);
+    const cols = flex.map(f => ({ flex: f + " 1 0", width: avail * f / total, h: 0, items: [] }));
+    this.order().forEach(i => {
+      const r = this.realRatios[i.src] || 0.667;
+      const c = cols.reduce((best, col) => (col.h < best.h ? col : best), cols[0]);
+      const t = this.tile(i);
+      c.items.push({ onOpen: t.onOpen, ratio: String(r), thumb: encodeURI(i.src.replace("uploads/", "uploads/t/").replace(/\.(jpe?g|png)$/i, ".webp")) });
+      c.h += c.width / r + gap;
+    });
+    return cols;
+  }
+
   // justified rows: aspect ratios preserved; every row fills the width
   rows() {
     const W = this.state.contW || 1200;
@@ -716,7 +747,7 @@ class Component extends DCLogic {
       lbDisplay: this.state.lb ? "flex" : "none",
       lbClose: () => this.setState({ lb: null }),
       galRef: (el) => { this.galEl = el; },
-      galRows: this.rows(),
+      galCols: this.cols(),
       heroIsMono: tone === "Black & white" && this.state.vw >= 700,
       heroIsColor: tone !== "Black & white" && this.state.vw >= 700,
       heroNarrowMono: tone === "Black & white" && this.state.vw < 700,
