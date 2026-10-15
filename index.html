@@ -274,7 +274,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;heroTone&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Black &amp; white&quot;,&quot;Full colour&quot;],&quot;default&quot;:&quot;Black &amp; white&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Hero&quot;}}">
 class Component extends DCLogic {
-  state = { page: "home", cat: "all", order: null, dragSrc: null, dragOver: null, contW: 0, work: "books", lb: null, navH: 0, vw: typeof window !== "undefined" ? window.innerWidth : 1200 };
+  state = { page: "home", cat: "all", order: null, extra: [], dragSrc: null, dragOver: null, contW: 0, work: "books", lb: null, navH: 0, vw: typeof window !== "undefined" ? window.innerWidth : 1200 };
 
   items = [
     { src: "uploads/track-stretch.jpg", caption: "Track — stretch", cat: "fitness", w: "clamp(240px,24vw,340px)", ar: "2/3", pos: "50% 35%" },
@@ -343,13 +343,19 @@ class Component extends DCLogic {
   ratio(ar) { const [w, h] = String(ar).split("/").map(Number); return w / h; }
 
   // saved order (drag to rearrange); falls back to the authored order
+  // photos added through the add-to-gallery folder (see gallery.json) come first, newest on top
+  allItems() {
+    return (this.state.extra || []).concat(this.items);
+  }
+
   order() {
+    const all = this.allItems();
     const saved = this.state.order;
-    if (!saved) return this.items;
-    const byId = Object.fromEntries(this.items.map(i => [i.src, i]));
+    if (!saved) return all;
+    const byId = Object.fromEntries(all.map(i => [i.src, i]));
     const listed = saved.map(src => byId[src]).filter(Boolean);
-    const rest = this.items.filter(i => !saved.includes(i.src));
-    return listed.concat(rest);
+    const rest = all.filter(i => !saved.includes(i.src));
+    return rest.concat(listed);
   }
 
   move(fromSrc, toSrc) {
@@ -378,6 +384,29 @@ class Component extends DCLogic {
       if (e.key === "ArrowRight") this.lbStep(1);
     };
     window.addEventListener("keydown", this.onKey);
+    const start = this.pageFromHash();
+    if (start !== this.state.page) this.setState({ page: start });
+    this.onRoute = () => {
+      const page = this.pageFromHash();
+      if (page !== this.state.page) { this.setState({ page, lb: null }); window.scrollTo(0, 0); }
+    };
+    window.addEventListener("hashchange", this.onRoute);
+    fetch("gallery.json", { cache: "no-cache" })
+      .then(r => (r.ok ? r.json() : []))
+      .then(list => {
+        if (!Array.isArray(list)) return;
+        const extra = list.filter(i => i && i.src).map(i => ({ ...i, ar: i.ar || (i.ratio ? i.ratio + "/1" : "2/3") }));
+        this.setState({ extra });
+      })
+      .catch(() => {});
+    window.addEventListener("popstate", this.onRoute);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.onResize);
+    window.removeEventListener("keydown", this.onKey);
+    window.removeEventListener("hashchange", this.onRoute);
+    window.removeEventListener("popstate", this.onRoute);
   }
 
   componentDidUpdate() { this.measure(); this.syncLb(); }
@@ -636,7 +665,7 @@ class Component extends DCLogic {
     const avail = W - gap * (flex.length - 1);
     const cols = flex.map(f => ({ flex: f + " 1 0", width: avail * f / total, h: 0, items: [] }));
     this.order().forEach(i => {
-      const r = this.realRatios[i.src] || 0.667;
+      const r = i.ratio || this.realRatios[i.src] || 0.667;
       const c = cols.reduce((best, col) => (col.h < best.h ? col : best), cols[0]);
       const t = this.tile(i);
       c.items.push({ onOpen: t.onOpen, ratio: String(r), thumb: encodeURI(i.src.replace("uploads/", "uploads/t/").replace(/\.(jpe?g|png)$/i, ".webp")) });
@@ -683,10 +712,26 @@ class Component extends DCLogic {
     });
   }
 
+  // each page gets its own shareable URL: tylerwade.com/#gallery etc.
+  // (the /gallery, /works, ... folders redirect here, so short links work too)
+  slugs = { home: "", gallery: "gallery", directing: "works", kit: "comp-card", about: "about", contact: "contact" };
+
+  pageFromHash() {
+    if (typeof window === "undefined") return "home";
+    const h = decodeURIComponent(window.location.hash.replace(/^#\/?/, "")).toLowerCase();
+    const hit = Object.keys(this.slugs).find(k => this.slugs[k] && this.slugs[k] === h);
+    return hit || "home";
+  }
+
   go(page) {
     return () => {
       this.setState({ page });
-      if (typeof window !== "undefined") window.scrollTo(0, 0);
+      if (typeof window !== "undefined") {
+        const slug = this.slugs[page] || "";
+        const url = slug ? "#" + slug : window.location.pathname + window.location.search;
+        try { if (this.pageFromHash() !== page) history.pushState(null, "", url); } catch (e) {}
+        window.scrollTo(0, 0);
+      }
     };
   }
 
