@@ -1,0 +1,36 @@
+name: Add gallery photos
+
+# Upload photos into the add-to-gallery/ folder on main and this puts them
+# on the site: resized copies + thumbnails in uploads/, listed in gallery.json.
+on:
+  push:
+    branches: [main]
+    paths: ["add-to-gallery/**"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: add-gallery-photos
+  cancel-in-progress: false
+
+jobs:
+  add:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pillow pillow-heif
+      - run: python scripts/add_gallery_photos.py
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
+          git add -A uploads gallery.json add-to-gallery
+          if git diff --cached --quiet; then echo "nothing to add"; exit 0; fi
+          git commit -m "Add photos to gallery"
+          git pull --rebase origin main
+          git push origin HEAD:main
