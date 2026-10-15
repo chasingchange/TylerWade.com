@@ -378,6 +378,21 @@ class Component extends DCLogic {
       if (e.key === "ArrowRight") this.lbStep(1);
     };
     window.addEventListener("keydown", this.onKey);
+    const start = this.pageFromHash();
+    if (start !== this.state.page) this.setState({ page: start });
+    this.onRoute = () => {
+      const page = this.pageFromHash();
+      if (page !== this.state.page) { this.setState({ page, lb: null }); window.scrollTo(0, 0); }
+    };
+    window.addEventListener("hashchange", this.onRoute);
+    window.addEventListener("popstate", this.onRoute);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.onResize);
+    window.removeEventListener("keydown", this.onKey);
+    window.removeEventListener("hashchange", this.onRoute);
+    window.removeEventListener("popstate", this.onRoute);
   }
 
   componentDidUpdate() { this.measure(); this.syncLb(); }
@@ -683,10 +698,26 @@ class Component extends DCLogic {
     });
   }
 
+  // each page gets its own shareable URL: tylerwade.com/#gallery etc.
+  // (the /gallery, /works, ... folders redirect here, so short links work too)
+  slugs = { home: "", gallery: "gallery", directing: "works", kit: "comp-card", about: "about", contact: "contact" };
+
+  pageFromHash() {
+    if (typeof window === "undefined") return "home";
+    const h = decodeURIComponent(window.location.hash.replace(/^#\/?/, "")).toLowerCase();
+    const hit = Object.keys(this.slugs).find(k => this.slugs[k] && this.slugs[k] === h);
+    return hit || "home";
+  }
+
   go(page) {
     return () => {
       this.setState({ page });
-      if (typeof window !== "undefined") window.scrollTo(0, 0);
+      if (typeof window !== "undefined") {
+        const slug = this.slugs[page] || "";
+        const url = slug ? "#" + slug : window.location.pathname + window.location.search;
+        try { if (this.pageFromHash() !== page) history.pushState(null, "", url); } catch (e) {}
+        window.scrollTo(0, 0);
+      }
     };
   }
 
